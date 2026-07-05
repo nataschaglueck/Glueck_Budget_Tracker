@@ -3,6 +3,8 @@ from flask_cors import CORS
 from database.connection import connect
 from routes.transactions import transactions_bp
 from routes.saving_goals import saving_goals_bp
+from routes.categories import categories_bp
+from routes.transaction_types import transaction_types_bp
 
 app = Flask(__name__)
 
@@ -13,7 +15,15 @@ app.register_blueprint(
 )
 
 app.register_blueprint(
-saving_goals_bp
+    saving_goals_bp
+)
+
+app.register_blueprint(
+    categories_bp
+)
+
+app.register_blueprint(
+    transaction_types_bp
 )
 
 @app.route("/")
@@ -35,5 +45,6 @@ def test_db():
     conn.close()
 
     return f"Connected to: {result[0]}"
+
 
 

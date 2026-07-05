@@ -22,12 +22,16 @@ def get_transactions():
             ON t.category_id = c.id
         ORDER BY t.transaction_date DESC
         """)
-    transactions = cur.fetchall()
-
+    
+    columns = [col[0] for col in cur.description]
+    transactions = [
+        dict(zip(columns, row))
+        for row in cur.fetchall()
+    ]
     cur.close()
     conn.close()
 
-    return transactions
+    return transactions, 200
 
 def verify_transaction_data(data):
     fields = [
@@ -58,7 +62,7 @@ def create_transaction(data):
         return {
             "success" : False,
             "error" : validation_error
-            }
+            }, 400
 
     category_id = category_services.get_category_id(data['category'])
 
@@ -66,7 +70,7 @@ def create_transaction(data):
         return {
             "success" : False,
             "error": "Category does not exist"
-            }
+            }, 400
 
     transaction_type_id = transaction_type_services.get_transaction_type_id(data['transaction_type'])
 
@@ -74,7 +78,7 @@ def create_transaction(data):
         return {
             "success" : False,
             "error": "Transaction type does not exist"
-            }
+            }, 400
 
 
     cur.execute(
@@ -109,7 +113,7 @@ def create_transaction(data):
     return {
         "success" : True,
         "transaction_id": transaction_id
-        }
+        }, 201
 
 
 def create_savings_transfer(data):
@@ -120,7 +124,7 @@ def create_savings_transfer(data):
         return {
             "success" : False,
             "error" : "Saving goal does not exist."
-        }
+        }, 400
 
     transaction = create_transaction(data)
     
@@ -150,8 +154,37 @@ def create_savings_transfer(data):
     return {
         "sucess" : True,
         "saving_transfer_id" : saving_transfer_id
-    }
+    }, 201
        
+def delete_transaction(transaction_id):
+    conn = connect()
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+        DELETE FROM transactions
+        WHERE id = %s
+        """,
+        (transaction_id,)
+    )
+    conn.commit()
+
+    if cur.rowcount == 0:
+        cur.close()
+        conn.close()
+        return {
+        "sucess" : False,
+        "error" : "Transaction not found"
+        }, 404
+
+    cur.close()
+    conn.close()
+
+    return {
+        "sucess" : True,
+        "message" : "Transaction deleted"
+        }, 200
+
 
 
 

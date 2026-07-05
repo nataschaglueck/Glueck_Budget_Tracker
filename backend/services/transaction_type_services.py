@@ -1,6 +1,24 @@
 from database.connection import connect
 
 
+def get_transaction_types() :
+    
+    conn = connect()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT * FROM transaction_types 
+        """
+    )
+
+    columns = [col[0] for col in cur.description]
+    transaction_types = [
+        dict(zip(columns, row))
+        for row in cur.fetchall()
+    ]
+
+    return transaction_types
+
 def get_transaction_type_id(transaction_type) :
     conn = connect()
     cur = conn.cursor()

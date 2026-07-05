@@ -19,4 +19,8 @@ def create_transaction():
 def create_savings_transfer():
     data = request.json
     return transaction_services.create_savings_transfer(data)
+
+@transactions_bp.route("/transactions/<int:transaction_id>", methods=["DELETE"])
+def delete_transaction(transaction_id):
+    return transaction_services.delete_transaction(transaction_id) 
     

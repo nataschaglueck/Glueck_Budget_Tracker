@@ -1,16 +1,19 @@
+
 import { useState } from "react";
 
-function TransactionForm() {
+function SavingsTransferForm() {
     const [transaction_type, setTransactionType] = useState("");
     const [title, setTitle] = useState("");
     const [amount, setAmount] = useState("");
     const [category, setCategory] = useState("");
     const [transaction_date, setTransactionDate] = useState("");
+    const [savings_goals, setSavingsGoals] = useState([]);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        const transactionData = {
+        const transferData = {
+            savings_goal: savings_goal,
             transaction_type: transaction_type,
             category: category,
             title: title,
@@ -18,13 +21,20 @@ function TransactionForm() {
             transaction_date: transaction_date
         };
 
-        const response = await fetch("http://127.0.0.1:5000/transactions", {
+        const response = await fetch("http://127.0.0.1:5000/transactions/saving_transfer", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(transactionData)
+            body: JSON.stringify(transfer_data)
         });
+
+        useEffect(() => {
+            fetch("http://127.0.0.1:5000/saving_goals")
+                .then((response) => response.json())
+                .then((data) => setSavingsGoals(data))
+                .catch((error) => console.error("Error loading savings goals:", error));
+        }, []);
 
         const result = await response.json();
 
@@ -34,6 +44,18 @@ function TransactionForm() {
     return (
         <form onSubmit={handleSubmit}>
 
+            <div>
+                <label>Transaction Type</label>
+
+                <select
+                    value={transaction_type}
+                    onChange={(e) => setTransactionType(e.target.value)}
+                >
+                    <option value="">Select a type</option>
+                    <option value="Income">Income</option>
+                    <option value="Expense">Expense</option>
+                </select>
+            </div>
             <div>
                 <label>Transaction Type</label>
 
@@ -97,4 +119,4 @@ function TransactionForm() {
     );
 }
 
-export default TransactionForm;
+export default SavingsTransferForm;

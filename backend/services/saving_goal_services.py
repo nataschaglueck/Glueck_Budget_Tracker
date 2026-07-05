@@ -10,7 +10,12 @@ def get_saving_goals():
         FROM saving_goals 
         ORDER BY due_date
         """)
-    saving_goals = cur.fetchall()
+    
+    columns = [col[0] for col in cur.description]
+    saving_goals = [
+        dict(zip(columns, row))
+        for row in cur.fetchall()
+    ]
 
     cur.close()
     conn.close()

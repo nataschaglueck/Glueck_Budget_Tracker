@@ -1,5 +1,23 @@
 from database.connection import connect
 
+def get_categories() :
+    
+    conn = connect()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT * FROM categories 
+        """
+    )
+
+    columns = [col[0] for col in cur.description]
+    categories = [
+        dict(zip(columns, row))
+        for row in cur.fetchall()
+    ]
+
+    return categories
+
 def get_category_id(category) :
     conn = connect()
     cur = conn.cursor()

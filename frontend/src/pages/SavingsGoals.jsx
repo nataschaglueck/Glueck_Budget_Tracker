@@ -1,5 +1,5 @@
-import SavingsGoalForm from "../components/SavingsGoalForm";
-import SavingsGoalsTable from "../components/SavingsGoalsTable";
+import SavingsGoalForm from "../components/forms/SavingsGoalForm";
+import SavingsGoalsTable from "../components/tables/SavingsGoalsTable";
 
 function SavingsGoals() {
     return (
