@@ -23,6 +23,9 @@ def get_transaction_type_id(transaction_type) :
     conn = connect()
     cur = conn.cursor()
 
+    if not valid_transaction_type(transaction_type) :
+        return None
+
     cur.execute("""
         SELECT id FROM transaction_types WHERE transaction_type = %s
         """,
@@ -38,3 +41,8 @@ def get_transaction_type_id(transaction_type) :
         return None
 
     return result[0]
+
+def valid_transaction_type(transaction_type) :
+    if transaction_type not in ["Expense", "Income"]:
+        return False
+    return True

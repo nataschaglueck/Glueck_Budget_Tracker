@@ -1,3 +1,6 @@
+import SavingsTransferForm from "../forms/SavingsTransferForm";
+import SavingsTransferTable from "../tables/SavingsTransfersTable";
+
 function SavingsGoalPopup({ savings_goal, onClose }) {
     if (!savings_goal) {
         return null;
@@ -26,6 +29,15 @@ function SavingsGoalPopup({ savings_goal, onClose }) {
                 <p>
                     <strong>Goal Amount:</strong> {savings_goal.goal_amount}
                 </p>
+
+                <SavingsTransferForm
+                    savings_goal={savings_goal}
+                    onCreate={onClose}
+                />
+
+                <SavingsTransferTable
+                    savings_goal_id={savings_goal.id}
+                />
 
             </div>
         </div>

@@ -23,4 +23,8 @@ def create_savings_transfer():
 @transactions_bp.route("/transactions/<int:transaction_id>", methods=["DELETE"])
 def delete_transaction(transaction_id):
     return transaction_services.delete_transaction(transaction_id) 
+
+@transactions_bp.route("/transactions/savings_transfers/<int:savings_goal_id>", methods=["GET"])
+def get_savings_transfers(savings_goal_id):
+    return transaction_services.get_savings_transfers(savings_goal_id)
     

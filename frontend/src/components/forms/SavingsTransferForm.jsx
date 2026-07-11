@@ -1,21 +1,20 @@
 
 import { useState } from "react";
+import TransactionTypeDropdown from "../dropdowns/TransactionTypeDropdown";
 
-function SavingsTransferForm() {
+function SavingsTransferForm({ savings_goal, onCreate }) {
     const [transaction_type, setTransactionType] = useState("");
     const [title, setTitle] = useState("");
     const [amount, setAmount] = useState("");
-    const [category, setCategory] = useState("");
-    const [transaction_date, setTransactionDate] = useState("");
-    const [savings_goals, setSavingsGoals] = useState([]);
+    const [transaction_date, setTransactionDate] = useState(new Date().toISOString().split("T")[0]);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        const transferData = {
-            savings_goal: savings_goal,
+        const transfer_data = {
+            savings_goal_id: savings_goal.id,
             transaction_type: transaction_type,
-            category: category,
+            category: "Savings",
             title: title,
             amount: amount,
             transaction_date: transaction_date
@@ -29,46 +28,27 @@ function SavingsTransferForm() {
             body: JSON.stringify(transfer_data)
         });
 
-        useEffect(() => {
-            fetch("http://127.0.0.1:5000/saving_goals")
-                .then((response) => response.json())
-                .then((data) => setSavingsGoals(data))
-                .catch((error) => console.error("Error loading savings goals:", error));
-        }, []);
-
         const result = await response.json();
 
         console.log(result);
+
+        if (response.ok) {
+            onCreate();
+
+            setTransactionType("");
+            setTitle("");
+            setAmount("");
+            setTransactionDate(new Date().toISOString().split("T")[0]);
+        }
     };
 
     return (
         <form onSubmit={handleSubmit}>
 
-            <div>
-                <label>Transaction Type</label>
-
-                <select
-                    value={transaction_type}
-                    onChange={(e) => setTransactionType(e.target.value)}
-                >
-                    <option value="">Select a type</option>
-                    <option value="Income">Income</option>
-                    <option value="Expense">Expense</option>
-                </select>
-            </div>
-            <div>
-                <label>Transaction Type</label>
-
-                <select
-                    value={transaction_type}
-                    onChange={(e) => setTransactionType(e.target.value)}
-                >
-                    <option value="">Select a type</option>
-                    <option value="Income">Income</option>
-                    <option value="Expense">Expense</option>
-                </select>
-            </div>
-
+            <TransactionTypeDropdown
+                value={transaction_type}
+                onChange={(e) => setTransactionType(e.target.value)}
+            />
             <div>
                 <label>Title</label>
                 <input
@@ -84,31 +64,6 @@ function SavingsTransferForm() {
                     type="number"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                />
-            </div>
-
-            <div>
-                <label>Category</label>
-
-                <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                >
-                    <option value="">Select a type</option>
-                    <option value="Salary">Salary</option>
-                    <option value="Housing">Housing</option>
-                    <option value="Groceries">Groceries</option>
-                    <option value="Education">Education</option>
-                </select>
-            </div>
-
-            <div>
-                <label>Transaction Date</label>
-
-                <input
-                    type="date"
-                    value={transaction_date}
-                    onChange={(e) => setTransactionDate(e.target.value)}
                 />
             </div>
 
