@@ -153,74 +153,67 @@ def create_savings_transfer(data):
 
        
 def delete_transaction(transaction_id):
-    
     transaction, transaction_status = get_transaction(transaction_id)
-    savings_goal_id = get_savings_goal_id(transaction_id)
 
     if transaction_status != 200:
         return transaction, transaction_status
 
+    savings_goal_id = get_savings_goal_id(transaction_id)
+
     conn = connect()
     cur = conn.cursor()
 
+    if savings_goal_id:
+        transaction_amount = finance_utils.get_signed_decimal(
+            transaction["transaction_type"],
+            transaction["amount"]
+        )
 
-    delete_response = delete_transaction_nc(cur, transaction_id)
+        undo_transaction_amount = -transaction_amount
+
+        update_goal_response = saving_goal_services.change_saving_amount_nc(
+            cur,
+            savings_goal_id,
+            undo_transaction_amount
+        )
+
+        if not update_goal_response["success"]:
+            conn.rollback()
+            cur.close()
+            conn.close()
+            return update_goal_response, 400
+
+        delete_link_response = delete_transfer_link_nc(
+            cur,
+            transaction_id
+        )
+
+        if not delete_link_response["success"]:
+            conn.rollback()
+            cur.close()
+            conn.close()
+            return delete_link_response, 400
+
+    delete_response = delete_transaction_nc(
+        cur,
+        transaction_id
+    )
 
     if not delete_response["success"]:
         conn.rollback()
-
         cur.close()
         conn.close()
-
         return delete_response, 400
 
-    
-    if not savings_goal_id :
-        conn.commit()
-
-        cur.close()
-        conn.close()
-         
-        return {
-        "success" : True,
-        "message" : "Transaction deleted"
-        }, 200
-    
-    transaction_amount = finance_utils.get_signed_decimal(transaction["transaction_type"], transaction["amount"])
-    undo_transaction_amount = -transaction_amount
-
-    update_goal_response = saving_goal_services.change_saving_amount_nc(cur, savings_goal_id, undo_transaction_amount)
-
-    if not update_goal_response["success"] :
-        conn.rollback()
-
-        cur.close()
-        conn.close()
-
-        return update_goal_response, 400
-    
-    delete_link_response = delete_transfer_link_nc(cur, transaction_id)
-
-    if not delete_link_response["success"] : 
-        conn.rollback()
-
-        cur.close()
-        conn.close()
-
-        return update_goal_response, 400
-    
     conn.commit()
-    
+
     cur.close()
     conn.close()
 
     return {
-        "success" : True,
-        "message" : "Transaction deleted"
-        }, 200
-
-       
-
+        "success": True,
+        "message": "Transaction deleted"
+    }, 200
 
 # -----------------------
 # Helper Functions

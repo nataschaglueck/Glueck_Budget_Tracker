@@ -8,7 +8,7 @@ function SavingsGoalPopup({ savings_goal, onClose }) {
 
     return (
         <div className="popup-overlay">
-            <div className="popup">
+            <div className="popup-content">
                 <button
                     className="popup-close"
                     onClick={onClose}

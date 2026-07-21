@@ -5,6 +5,8 @@ from routes.transactions import transactions_bp
 from routes.saving_goals import saving_goals_bp
 from routes.categories import categories_bp
 from routes.transaction_types import transaction_types_bp
+from routes.analytics import analytics_bp
+
 
 app = Flask(__name__)
 
@@ -24,6 +26,10 @@ app.register_blueprint(
 
 app.register_blueprint(
     transaction_types_bp
+)
+
+app.register_blueprint(
+    analytics_bp
 )
 
 @app.route("/")
