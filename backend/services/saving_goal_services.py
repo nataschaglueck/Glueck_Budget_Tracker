@@ -1,4 +1,5 @@
 from database.connection import connect
+from services import transaction_services
 
 def get_saving_goals():
     
@@ -43,6 +44,68 @@ def get_saving_goal_id(saving_goal):
         return None
     
     return result[0]
+
+def delete_saving_goal(savings_goal_id):
+
+    if not verify_savings_goal_id(savings_goal_id):
+        return {
+        "success" : False,
+        "error" : "Savings Goal not found"
+        }, 400
+
+    savings_transfers, savings_transfers_status = transaction_services.get_savings_transfers(savings_goal_id)
+
+    conn = connect()
+    cur = conn.cursor()
+
+    if savings_transfers :
+
+        for savings_transfer in savings_transfers:
+
+            delete_link_response = transaction_services.delete_transfer_link_nc(
+            cur,
+            savings_transfer["id"]
+            )
+
+            if not delete_link_response["success"]:
+                conn.rollback()
+                cur.close()
+                conn.close()
+                return delete_link_response, 400
+            
+            delete_transaction_response = transaction_services.delete_transaction_nc(
+            cur,
+            savings_transfer["id"]
+            )
+
+            if not delete_transaction_response["success"]:
+                conn.rollback()
+                cur.close()
+                conn.close()
+                return delete_transaction_response, 400
+        
+    delete_goal_response = delete_saving_goal_nc(cur, savings_goal_id)
+
+    if not delete_goal_response["success"]:
+        conn.rollback()
+        cur.close()
+        conn.close()
+        return delete_goal_response, 400
+    
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return delete_goal_response, 200
+
+        
+
+
+
+
+
+
+
 
 def verify_saving_goal_data(data):
     fields = [
@@ -162,6 +225,24 @@ def change_saving_amount_nc(cur, goal_id, signed_amount):
         "success" : True,
         "new_amount": new_amount
         }
-        
 
+def delete_saving_goal_nc(cur,savings_goal_id):
 
+    cur.execute(
+        """
+        DELETE FROM saving_goals
+        WHERE id = %s
+        """,
+        (savings_goal_id,)
+    )
+
+    if cur.rowcount == 0:
+    
+        return {
+        "success" : False,
+        "error" : "Savings Goal not found"
+        }
+    return {
+        "success" : True,
+        "deleted" : savings_goal_id
+    }

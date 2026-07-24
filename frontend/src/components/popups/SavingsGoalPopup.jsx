@@ -1,5 +1,7 @@
 import SavingsTransferForm from "../forms/SavingsTransferForm";
 import SavingsTransferTable from "../tables/SavingsTransfersTable";
+import CrerateSavingsTransferButton from "../buttons/CreateSavingsTransferButton";
+import DeleteSavingsGoalButton from "../buttons/DeleteSavingsGoalButton";
 
 function SavingsGoalPopup({ savings_goal, onClose }) {
     if (!savings_goal) {
@@ -30,7 +32,14 @@ function SavingsGoalPopup({ savings_goal, onClose }) {
                     <strong>Goal Amount:</strong> {savings_goal.goal_amount}
                 </p>
 
-                <SavingsTransferForm
+                <CrerateSavingsTransferButton
+                    transfer_type_sign="+"
+                    savings_goal={savings_goal}
+                    onCreate={onClose}
+                />
+
+                <CrerateSavingsTransferButton
+                    transfer_type_sign="-"
                     savings_goal={savings_goal}
                     onCreate={onClose}
                 />
@@ -38,6 +47,12 @@ function SavingsGoalPopup({ savings_goal, onClose }) {
                 <SavingsTransferTable
                     savings_goal_id={savings_goal.id}
                 />
+
+                <DeleteSavingsGoalButton
+                    savings_goal_id={savings_goal.id}
+                    onDelete={onClose}
+                />
+
 
             </div>
         </div>

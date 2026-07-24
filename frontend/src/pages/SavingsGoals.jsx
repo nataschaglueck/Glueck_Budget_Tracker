@@ -7,11 +7,14 @@ function SavingsGoals() {
     const [savings_goals, setSavingsGoals] = useState([]);
     const [selectedSavingsGoal, setSelectedSavingsGoal] = useState(null);
 
-    useEffect(() => {
+    const loadSavingsGoals = () => {
         fetch("http://127.0.0.1:5000/saving_goals")
             .then((response) => response.json())
             .then((data) => setSavingsGoals(data))
             .catch((error) => console.error("Error loading savings goals:", error));
+    }
+    useEffect(() => {
+        loadSavingsGoals();
     }, []);
 
     return (
@@ -23,7 +26,10 @@ function SavingsGoals() {
             />
             <SavingsGoalPopup
                 savings_goal={selectedSavingsGoal}
-                onClose={() => setSelectedSavingsGoal(null)}
+                onClose={() => {
+                    setSelectedSavingsGoal(null);
+                    loadSavingsGoals();
+                }}
             />
             <SavingsGoalForm />
         </>
